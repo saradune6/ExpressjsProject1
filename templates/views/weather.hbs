@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{>headlink}}
+</head>
+<body>
+
+    {{>navbar}}
+
+    <!-- Start of header section -->
+    <div class="container-fluid main_menu">
+        <div class="col-md-10 col-12 mx-auto">
+            <div class="row">
+                <form class="temp_form">
+                    <input type="text" id="cityName" placeholder="Enter your City name" autocomplete="off">
+                    <input type="submit" value="Search" id="submitBtn"> <!-- Corrected ID -->
+                </form>
+                <div>
+                    <div class="tempInformation">
+                        <div class="top_layer">
+                            <br>
+                            <p id="day">Tuesday</p>
+                            <p id="today_date">1 SEPT</p>
+                        </div>
+                        <div class="main_layer ">
+                            <p id="city_name">City..??</p>
+                            <div class="middle_layer data_hide">
+                                <p id="temp"><span>0</span><sup>o</sup>C</p>
+                                <p id="temp_status"><i class="fa-solid fa-cloud fa-fade"></i></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{>footer}}
+
+    <script >
+   const cityName = document.getElementById('cityName');
+const city_name = document.getElementById('city_name'); // Corrected ID
+const submitBtn = document.getElementById('submitBtn'); // Corrected ID
+const datahide = document.querySelector('.middle_layer')
+
+const getInfo = async (event) => {
+    event.preventDefault();
+    let cityval = cityName.value;
+    if (cityval === "") {
+        city_name.innerText = 'Please write the city name to search';
+        datahide.classList.add('data_hide');
+
+    } else {
+        try {
+            let url = `https://api.openweathermap.org/data/2.5/weather?q=${cityval}&appid=ad642b248ad82aba6082116e3e96eee9&units=metric`;
+            const response = await fetch(url);
+
+            if (response.status === 200) {
+                const data = await response.json();
+                const { main, weather, name, } = data;
+                const temp = main.temp;
+                const tempStatus = weather[0].main;
+               
+
+                city_name.innerText = `${name}`;
+                document.getElementById('temp').innerText = `${temp}°C`;
+                document.getElementById('temp_status').innerText = `${tempStatus}`;
+
+                const tempMood = weather[0].main;
+
+
+                //conditions
+                if(tempMood == "Clear"){
+                    temp_status.innerHTML = 
+                     "<i class='fa-sharp fa-solid fa-sun fa-spin' style='color: #e7b214'></i>";
+                }else if(tempMood == "Clouds"){
+                    temp_status.innerHTML = 
+                     "<i class='fa-solid fa-cloud fa-beat' style='color: #8fbde7'></i>";
+                }else if(tempMood == "Drizzle"){
+                    temp_status.innerHTML =
+                     "<i class='fa-solid fa-cloud-rain fa-beat-fade' style='color: #6c91bc'></i>";
+                }else if(tempMood == "Rain"){
+                    temp_status.innerHTML =
+                     "<i class='fa-solid fa-cloud-bolt fa-beat-fade'style='color: #009ad8'></i>";
+                }else if(tempMood == "Mist"){
+                    temp_status.innerHTML =
+                     "<i class='fa-solid fa-droplet' style='color: #9de785'></i>";
+                }else if(tempMood == "Haze"){
+                    temp_status.innerHTML =
+                     "<i class='fa-solid fa-smog fa-fade' style='color: #9de785'></i>";  
+                }
+                else{
+                     temp_status.innerHTML =
+                    "<i class='fa-light fa-temperature-half fa-beat' style='color: #009ad8'></i>";                }
+            } else {
+                city_name.innerText = 'City not found';
+               
+            }
+              datahide.classList.remove('data_hide');
+
+        } catch (error) {
+            city_name.innerText = 'Please write the city name properly';
+             datahide.classList.add('data_hide');
+
+        }
+    }
+}
+
+submitBtn.addEventListener('click', getInfo);
+
+
+</script>
+
+
+ <script>
+        // Inline JavaScript to fetch and display the current day and date
+        const dayElement = document.getElementById('day');
+        const dateElement = document.getElementById("today_date");
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = today.toLocaleDateString('en-US', options);
+        dayElement.innerText = formattedDate.split(',')[0];
+        dateElement.innerText = formattedDate.split(',')[1].trim();
+    </script>
+</body>
+</html>
